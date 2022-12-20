@@ -1,0 +1,67 @@
+#include <Windows.h>
+#include <iostream>
+using namespace std;
+HANDLE hS;
+LONG cMax = 2;
+DWORD WINAPI Tr1(LPVOID pr);
+DWORD WINAPI tr2(LPVOID pr);
+DWORD WINAPI tr3(LPVOID pr);
+
+DWORD tID1, tID2, tID3;
+HANDLE tD1, tD2, tD3;
+int main() {
+	hS = CreateSemaphore(NULL, cMax, cMax, NULL); // Нет атрибута, нач сост, макс сост., без имени
+	if (hS != NULL) {
+		tD1 = CreateThread(NULL,NULL, Tr1,NULL,NULL, &tID1);
+		if (tD1 == NULL)
+			cout << "error td1";
+		tD2 = CreateThread(NULL, NULL, tr2, NULL, NULL, &tID2);
+		if (tD2 == NULL)
+			cout << "error td2";
+		tD3 = CreateThread(NULL, NULL, tr3, NULL, NULL, &tID3);
+		if (tD3 == NULL)
+			cout << "error td3";
+		Sleep(10000);
+		cin.get();
+		CloseHandle(hS);
+	}
+	else
+		cout << "error create semaphore";
+	return 0;
+}
+DWORD WINAPI Tr1(LPVOID pr) {
+	cout << "Tr1 Running \n";
+	while (WaitForSingleObject(hS, 1) != WAIT_OBJECT_0) //интервал ожидания
+	{
+		cout << "TR1 TIMEOUT \n";
+	}
+	Sleep(10000);
+	if(ReleaseSemaphore(hS,1,NULL))
+		cout << "Start Tr1 \n";
+	CloseHandle(tD1);
+	return 0;
+}
+DWORD WINAPI tr2(LPVOID pr) {
+	cout << "Tr2 Running \n";
+	while (WaitForSingleObject(hS, 1) != WAIT_OBJECT_0) //интервал ожидания
+	{
+		cout << "TR2 TIMEOUT \n";
+	}
+	Sleep(10000);
+	if (ReleaseSemaphore(hS, 1, NULL))
+		cout << "Start Tr2 \n";
+	CloseHandle(tD2);
+	return 0;
+}
+DWORD WINAPI tr3(LPVOID pr) {
+	cout << "Tr3 Running \n";
+	while (WaitForSingleObject(hS, 1) != WAIT_OBJECT_0) //интервал ожидания
+	{
+		cout << "TR3 TIMEOUT \n";
+	}
+	Sleep(10000);
+	if (ReleaseSemaphore(hS, 1, NULL))
+		cout << "Start Tr3 \n";
+	CloseHandle(tD3);
+	return 0;
+}
