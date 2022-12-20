@@ -1,0 +1,28 @@
+#include <Windows.h>
+#include <iostream>
+using namespace std;
+CRITICAL_SECTION cs;
+int a[5];
+DWORD WINAPI tr(LPVOID pr) {
+	int i, num = 0;
+	while(1){
+		EnterCriticalSection(&cs);
+		for (int i = 0; i < 5; i++)
+			a[i]++;
+		LeaveCriticalSection(&cs);
+	}
+	return 0;
+}
+int main() {
+	DWORD thID;
+	InitializeCriticalSection(&cs);
+	CreateThread(NULL, NULL, tr, NULL, NULL, &thID);
+	while (1) {
+		EnterCriticalSection(&cs);
+		for (int i = 0; i < 5; i++)
+			cout << a[i] << " ";
+		LeaveCriticalSection(&cs);
+		cin.get();
+	}
+	return 0;
+}
